@@ -55,11 +55,16 @@ int main(int argc, char* argv[]) {
     dist[src_idx] = 0.0;
 
     priority_queue<pair<double,int>, vector<pair<double,int>>, greater<>> pq;
-    pq.push({0.0, src_idx});
+    vector<bool> visited(n, false);
 
+    // FIX: timer now starts before the initial push, so the entire
+    // algorithmic work (including seeding the source) is inside the
+    // timed region — matching Bellman-Ford, whose timer starts before
+    // any relaxation work happens.
     auto start_time = chrono::high_resolution_clock::now();
 
-    vector<bool> visited(n, false);
+    pq.push({0.0, src_idx});
+
     while (!pq.empty()) {
         auto [d, u_idx] = pq.top();
         pq.pop();

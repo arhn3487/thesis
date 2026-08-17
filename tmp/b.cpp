@@ -68,6 +68,16 @@ int main(int argc, char* argv[]) {
         if (!updated) break;
     }
 
+    // FIX: end_time is now captured immediately after the main relaxation
+    // loop -- i.e. right after the "core shortest-path computation" that is
+    // algorithmically comparable to what Dijkstra's loop does. The
+    // negative-cycle check below is a separate O(m) verification pass with
+    // no equivalent step in the Dijkstra implementation, so it must NOT be
+    // included in the timed region if the two times are meant to be
+    // compared apples-to-apples.
+    auto end_time = chrono::high_resolution_clock::now();
+    double elapsed_sec = chrono::duration<double>(end_time - start_time).count();
+
     bool negative_cycle = false;
     for (auto& e : edges) {
         int ui = (int)e[0], vi = (int)e[1];
@@ -77,10 +87,6 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
-
-    auto end_time = chrono::high_resolution_clock::now();
-    double elapsed_sec = chrono::duration<double>(end_time - start_time).count();
-
     if (negative_cycle) cerr << "WARNING: negative cycle detected" << endl;
 
     for (int i = 0; i < n; i++) {
